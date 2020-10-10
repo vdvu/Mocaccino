@@ -1,6 +1,7 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using Mocaccino.Security;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,8 +15,87 @@ namespace Mocaccino
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private string _currentPath;
+        public string CurrentPath
+        {
+            get { return _currentPath; }
+            set
+            {
+                _currentPath = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentPath"));
+            }
+        }
+
+        private string _currentProcess;
+        public string CurrentProcess
+        {
+            get { return _currentProcess; }
+            set
+            {
+                _currentProcess = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentProcess"));
+            }
+        }
+
+        private string _currentFileName;
+        public string CurrentFileName
+        {
+            get { return _currentFileName; }
+            set
+            {
+                _currentFileName = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentFileName"));
+            }
+        }
+
+        private string _currentFilePath;
+        public string CurrentFilePath
+        {
+            get { return _currentFilePath; }
+            set
+            {
+                _currentFilePath = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentFilePath"));
+            }
+        }
+
+        private int _numberOfProcessedFiles;
+        public int NumberOfProcessedFiles
+        {
+            get { return _numberOfProcessedFiles; }
+            set
+            {
+                _numberOfProcessedFiles = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("NumberOfProcessedFiles"));
+            }
+        }
+
+        private int _numberOfFiles;
+        public int NumberOfFiles
+        {
+            get { return _numberOfFiles; }
+            set
+            {
+                _numberOfFiles = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("NumberOfFiles"));
+            }
+        }
+
+        private bool _executeButtonIsEnabled = true;
+        public bool ExecuteButtonIsEnabled
+        {
+            get { return _executeButtonIsEnabled; }
+            set
+            {
+                _executeButtonIsEnabled = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ExecuteButtonIsEnabled"));
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -44,7 +124,7 @@ namespace Mocaccino
                 if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
                     _paths = commonOpenFileDialog.FileNames.ToList();
-                    PathTextBox.Text = _paths[0];
+                    CurrentPath = _paths[0];
                 }
             }
             else if ((bool)FolderRadioButton.IsChecked)
@@ -54,57 +134,53 @@ namespace Mocaccino
                 {
                     string path = commonOpenFileDialog.FileName;
                     _paths = Directory.GetFiles(path, "*", SearchOption.AllDirectories).ToList();
-                    PathTextBox.Text = path;
+                    CurrentPath = path;
                 }
             }
         }
 
         private async void ExecuteButton_Click(object sender, RoutedEventArgs e)
         {
-            ((Button)sender).IsEnabled = false;
+            ExecuteButtonIsEnabled = false;
             string password = PasswordBox.Password;
             GCHandle gCHandle = GCHandle.Alloc(password, GCHandleType.Pinned);
 
-            int totalNumberOfFiles = _paths.Count;
+            NumberOfFiles = _paths.Count;
             int numberOfSuccessFiles = 0;
-            int fileNumber = 0;
-
-            TotalNumberOfFilesTextBlock.Text = totalNumberOfFiles.ToString();
-
 
             if ((bool)EncryptRadioButton.IsChecked)
             {
-                ProcessTextBlock.Text = "Encrypt";
+                CurrentProcess = "Encrypt";
                 foreach (string path in _paths)
                 {
-                    PathTextBlock.Text = Path.GetFileName(path);
-                    PathTextBlock.ToolTip = path;
+                    CurrentFileName = Path.GetFileName(path);
+                    CurrentFilePath = path;
 
                     numberOfSuccessFiles += await Task.Run(() => Crypter.FileEncrypt(path, password)) ? 1 : 0;
-                    FileNumberTextBlock.Text = (++fileNumber).ToString();
+                    ++NumberOfProcessedFiles;
                 }
             }
             else if ((bool)DecryptRadioButton.IsChecked)
             {
-                ProcessTextBlock.Text = "Decrypt";
+                CurrentProcess = "Decrypt";
                 foreach (string path in _paths)
                 {
-                    PathTextBlock.Text = Path.GetFileName(path);
-                    PathTextBlock.ToolTip = path;
+                    CurrentFileName = Path.GetFileName(path);
+                    CurrentFilePath = path;
 
                     numberOfSuccessFiles += await Task.Run(() => Crypter.FileDecrypt(path, password)) ? 1 : 0;
-                    FileNumberTextBlock.Text = (++fileNumber).ToString();
+                    ++NumberOfProcessedFiles;
                 }
             }
 
             Crypter.ZeroMemory(gCHandle.AddrOfPinnedObject(), password.Length * 2);
             gCHandle.Free();
 
-            ((Button)sender).IsEnabled = true;
+            ExecuteButtonIsEnabled = true;
 
-            string msg = $"Process completed!\nSuccess: {numberOfSuccessFiles}/{totalNumberOfFiles}.";
+            string msg = $"Process completed!\nSuccess: {numberOfSuccessFiles}/{NumberOfFiles}.";
             MessageBoxImage messageBoxImage = MessageBoxImage.Information;
-            if (numberOfSuccessFiles < totalNumberOfFiles)
+            if (numberOfSuccessFiles < NumberOfFiles)
             {
                 msg += "\nView log file for more information!";
                 messageBoxImage = MessageBoxImage.Warning;

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Mocaccino" xmlns:shell="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
         mc:Ignorable="d"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="Mocaccino" Height="250" Width="435" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Style="{DynamicResource WindowTemplate}">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome
@@ -107,31 +108,31 @@
         <Label Content="/" FontSize="15" Width="10" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="70,20,0,0" Padding="2,1"/>
         <RadioButton x:Name="FolderRadioButton" GroupName="Dialog" Content="Folder" Width="53" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="80,20,0,0" VerticalContentAlignment="Center"/>
         <Label Content=":" Width="5" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="123,20,0,0" Padding="1,4"/>
-        <TextBox x:Name="PathTextBox" Width="200" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="150,20,0,0" VerticalContentAlignment="Center" IsEnabled="False" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" ToolTipService.ShowOnDisabled="True"/>
+        <TextBox x:Name="PathTextBox" Width="200" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="150,20,0,0" VerticalContentAlignment="Center" IsEnabled="False" Text="{Binding CurrentPath}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" ToolTipService.ShowOnDisabled="True"/>
         <Button x:Name="PathButton" Content=". . ." Width="26" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="370,20,0,0" VerticalContentAlignment="Top" Style="{StaticResource NormalButtonStyle}" Click="PathButton_Click"/>
         <Label Content="Password:" Width="100" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,60,0,0"/>
         <PasswordBox x:Name="PasswordBox" Width="200" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="150,60,0,0" VerticalContentAlignment="Center"/>
         <Label Content="Mode:" Width="100" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,100,0,0"/>
         <RadioButton x:Name="EncryptRadioButton" GroupName="Mode" Content="Encrypt" Width="100" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="150,100,0,0" VerticalContentAlignment="Center"/>
         <RadioButton x:Name="DecryptRadioButton" GroupName="Mode" Content="Decrypt" Width="100" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="150,126,0,0" VerticalContentAlignment="Center"/>
-        <Button x:Name="ExecuteButton" Content="Execute" Width="100" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="250,113,0,0" Style="{StaticResource NormalButtonStyle}" Click="ExecuteButton_Click" />
+        <Button x:Name="ExecuteButton" Content="Execute" Width="100" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="250,113,0,0" IsEnabled="{Binding ExecuteButtonIsEnabled}" Style="{StaticResource NormalButtonStyle}" Click="ExecuteButton_Click"/>
         <StatusBar Height="26" VerticalAlignment="Bottom">
-            <StatusBarItem Width="40" Padding="0" Margin="20,0">
-                <TextBlock x:Name="ProcessTextBlock" Text="Process"/>
+            <StatusBarItem Width="42" Padding="0" Margin="20,0">
+                <TextBlock x:Name="CurrentProcessTextBlock" Text="{Binding CurrentProcess, TargetNullValue='Process', FallbackValue='Decrypt'}"/>
             </StatusBarItem>
             <Separator Background="#b9b9b9" Width="1"/>
-            <StatusBarItem Width="190" Padding="0" Margin="20,0">
-                <TextBlock x:Name="PathTextBlock" Text="File name" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}"/>
+            <StatusBarItem Width="188" Padding="0" Margin="20,0">
+                <TextBlock x:Name="CurrentFileNameTextBlock" Text="{Binding CurrentFileName, TargetNullValue='File name', FallbackValue='File name'}" ToolTip="{Binding CurrentFilePath}"/>
             </StatusBarItem>
             <Separator Background="#b9b9b9" Width="1" HorizontalAlignment="Left"/>
             <StatusBarItem Width="30" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0" Margin="20,0,0,0">
-                <TextBlock x:Name="FileNumberTextBlock" Text="0"/>
+                <TextBlock x:Name="NumberOfProcessedFilesTextBlock" Text="{Binding NumberOfProcessedFiles, FallbackValue=0}"/>
             </StatusBarItem>
             <StatusBarItem Width="5" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0">
                 <TextBlock Text="/"/>
             </StatusBarItem>
             <StatusBarItem Width="30" HorizontalAlignment="Right" Padding="0" Margin="0,0,20,0">
-                <TextBlock x:Name="TotalNumberOfFilesTextBlock" Text="0"/>
+                <TextBlock x:Name="NumberOfFilesTextBlock" Text="{Binding NumberOfFiles, FallbackValue=0}"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>
