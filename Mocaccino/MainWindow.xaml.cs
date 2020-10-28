@@ -148,6 +148,8 @@ namespace Mocaccino
             NumberOfFiles = _paths.Count;
             int numberOfSuccessFiles = 0;
 
+            NumberOfProcessedFiles = 0;
+
             if ((bool)EncryptRadioButton.IsChecked)
             {
                 CurrentProcess = "Encrypt";
