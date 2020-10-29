@@ -109,7 +109,7 @@
         <RadioButton x:Name="FolderRadioButton" GroupName="Dialog" Content="Folder" Width="53" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="80,20,0,0" VerticalContentAlignment="Center"/>
         <Label Content=":" Width="5" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="123,20,0,0" Padding="1,4"/>
         <TextBox x:Name="PathTextBox" Width="200" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="150,20,0,0" VerticalContentAlignment="Center" IsEnabled="False" Text="{Binding CurrentPath}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" ToolTipService.ShowOnDisabled="True"/>
-        <Button x:Name="PathButton" Content=". . ." Width="26" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="370,20,0,0" VerticalContentAlignment="Top" Style="{StaticResource NormalButtonStyle}" Click="PathButton_Click"/>
+        <Button x:Name="PathButton" Content=". . ." Width="26" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="370,20,0,0" VerticalContentAlignment="Top" IsEnabled="{Binding ExecuteButtonIsEnabled}" Style="{StaticResource NormalButtonStyle}" Click="PathButton_Click"/>
         <Label Content="Password:" Width="100" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,60,0,0"/>
         <PasswordBox x:Name="PasswordBox" Width="200" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="150,60,0,0" VerticalContentAlignment="Center"/>
         <Label Content="Mode:" Width="100" Height="26" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,100,0,0"/>
