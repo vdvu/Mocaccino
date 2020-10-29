@@ -141,53 +141,64 @@ namespace Mocaccino
 
         private async void ExecuteButton_Click(object sender, RoutedEventArgs e)
         {
-            ExecuteButtonIsEnabled = false;
-            string password = PasswordBox.Password;
-            GCHandle gCHandle = GCHandle.Alloc(password, GCHandleType.Pinned);
-
-            NumberOfFiles = _paths.Count;
-            int numberOfSuccessFiles = 0;
-
-            NumberOfProcessedFiles = 0;
-
-            if ((bool)EncryptRadioButton.IsChecked)
+            if (_paths == null || _paths.Count == 0)
             {
-                CurrentProcess = "Encrypt";
-                foreach (string path in _paths)
+                MessageBox.Show("There is no file to execute!", "Mocaccino", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else if ((bool)EncryptRadioButton.IsChecked || (bool)DecryptRadioButton.IsChecked)
+            {
+                ExecuteButtonIsEnabled = false;
+                string password = PasswordBox.Password;
+                GCHandle gCHandle = GCHandle.Alloc(password, GCHandleType.Pinned);
+
+                NumberOfFiles = _paths.Count;
+                int numberOfSuccessFiles = 0;
+
+                NumberOfProcessedFiles = 0;
+
+                if ((bool)EncryptRadioButton.IsChecked)
                 {
-                    CurrentFileName = Path.GetFileName(path);
-                    CurrentFilePath = path;
+                    CurrentProcess = "Encrypt";
+                    foreach (string path in _paths)
+                    {
+                        CurrentFileName = Path.GetFileName(path);
+                        CurrentFilePath = path;
 
-                    numberOfSuccessFiles += await Task.Run(() => Crypter.FileEncrypt(path, password)) ? 1 : 0;
-                    ++NumberOfProcessedFiles;
+                        numberOfSuccessFiles += await Task.Run(() => Crypter.FileEncrypt(path, password)) ? 1 : 0;
+                        ++NumberOfProcessedFiles;
+                    }
                 }
-            }
-            else if ((bool)DecryptRadioButton.IsChecked)
-            {
-                CurrentProcess = "Decrypt";
-                foreach (string path in _paths)
+                else if ((bool)DecryptRadioButton.IsChecked)
                 {
-                    CurrentFileName = Path.GetFileName(path);
-                    CurrentFilePath = path;
+                    CurrentProcess = "Decrypt";
+                    foreach (string path in _paths)
+                    {
+                        CurrentFileName = Path.GetFileName(path);
+                        CurrentFilePath = path;
 
-                    numberOfSuccessFiles += await Task.Run(() => Crypter.FileDecrypt(path, password)) ? 1 : 0;
-                    ++NumberOfProcessedFiles;
+                        numberOfSuccessFiles += await Task.Run(() => Crypter.FileDecrypt(path, password)) ? 1 : 0;
+                        ++NumberOfProcessedFiles;
+                    }
                 }
+
+                Crypter.ZeroMemory(gCHandle.AddrOfPinnedObject(), password.Length * 2);
+                gCHandle.Free();
+
+                ExecuteButtonIsEnabled = true;
+
+                string msg = $"Process completed!\nSuccess: {numberOfSuccessFiles}/{NumberOfFiles}.";
+                MessageBoxImage messageBoxImage = MessageBoxImage.Information;
+                if (numberOfSuccessFiles < NumberOfFiles)
+                {
+                    msg += "\nView log file for more information!";
+                    messageBoxImage = MessageBoxImage.Warning;
+                }
+                MessageBox.Show(msg, "Mocaccino", MessageBoxButton.OK, messageBoxImage);
             }
-
-            Crypter.ZeroMemory(gCHandle.AddrOfPinnedObject(), password.Length * 2);
-            gCHandle.Free();
-
-            ExecuteButtonIsEnabled = true;
-
-            string msg = $"Process completed!\nSuccess: {numberOfSuccessFiles}/{NumberOfFiles}.";
-            MessageBoxImage messageBoxImage = MessageBoxImage.Information;
-            if (numberOfSuccessFiles < NumberOfFiles)
+            else
             {
-                msg += "\nView log file for more information!";
-                messageBoxImage = MessageBoxImage.Warning;
+                MessageBox.Show("Please select a Mode to execute!", "Mocaccino", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            MessageBox.Show(msg, "Mocaccino", MessageBoxButton.OK, messageBoxImage);
         }
     }
 }

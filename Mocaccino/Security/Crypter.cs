@@ -81,7 +81,9 @@ namespace Mocaccino.Security
 
             CryptoStream cs = new CryptoStream(fsOut, AES.CreateEncryptor(), CryptoStreamMode.Write);
 
-            FileStream fsIn = new FileStream(inputFile, FileMode.Open);
+            //If file attributes include Read-only, this can't create new filestream with FileStream(string path, FileMode mode);
+            //Another way is change file attributes to Normal by SetAttributes(string path, FileAttributes fileAttributes);
+            FileStream fsIn = new FileStream(inputFile, FileMode.Open, FileAccess.Read, FileShare.None);
 
             //Create a buffer (1mb) so only this amount will allocate in the memory and not the whole file.
             byte[] buffer = new byte[_bufferLength];
@@ -98,6 +100,11 @@ namespace Mocaccino.Security
                 fsIn.Close();
                 cs.Close();
                 fsOut.Close();
+
+                if (File.GetAttributes(inputFile).HasFlag(FileAttributes.ReadOnly))
+                {
+                    File.SetAttributes(inputFile, FileAttributes.Normal);
+                }
 
                 File.Delete(inputFile);
                 File.Move(outputFile, inputFile);
